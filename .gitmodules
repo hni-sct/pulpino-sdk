@@ -4,3 +4,6 @@
 [submodule "jtag_bridge"]
 	path = jtag_bridge
 	url = https://github.com/bkoppelmann/pulpino_jtag_bridge.git
+[submodule "riscv-gnu-toolchain"]
+	path = riscv-gnu-toolchain
+	url = https://github.com/riscv/riscv-gnu-toolchain.git
