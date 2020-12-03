@@ -1,0 +1,6 @@
+[submodule "gdb"]
+	path = gdb
+	url = https://github.com/riscv/riscv-binutils-gdb.git
+[submodule "jtag_bridge"]
+	path = jtag_bridge
+	url = https://github.com/bkoppelmann/pulpino_jtag_bridge.git
