@@ -34,7 +34,7 @@ uint8_t spi_transfer_byte(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t byte)
         set_gpio_pin_value(clk, 0);
         res |= get_gpio_pin_value(miso) << i;
         set_gpio_pin_value(clk, 1);
-        sleep_busy(100);
+        sleep_busy(1000);
     }
     return res;
 }

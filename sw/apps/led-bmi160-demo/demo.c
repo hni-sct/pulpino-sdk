@@ -10,11 +10,9 @@
 #define BMI_MISO 12
 #define BMI_MOSI 11
 
-asm (".global _printf_float");
-
 void delay_ms(uint32_t period)
 {
-    sleep_busy(period*10);
+    sleep_busy(period*100);
 }
 
 int8_t bmi_spi_write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t len)
@@ -28,7 +26,7 @@ int8_t bmi_spi_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t 
     return spi_read(BMI_SCK, BMI_MISO, BMI_MOSI, BMI_CS, reg_addr, data, len);
 }
 
-void config_sensors(struct bmi160_dev *sensor)
+int8_t config_sensors(struct bmi160_dev *sensor)
 {
     int8_t rslt = BMI160_OK;
 
@@ -50,6 +48,7 @@ void config_sensors(struct bmi160_dev *sensor)
 
     /* Set the sensor configuration */
     rslt = bmi160_set_sens_conf(sensor);
+    return rslt;
 }
 
 void get_sensor_data(struct bmi160_dev *sensor, int16_t *x, int16_t *y, int16_t *z)
@@ -117,12 +116,12 @@ int main()
     sensor.delay_ms = &delay_ms;
     sensor.interface = BMI160_SPI_INTF;
     bmi160_init(&sensor);
-    config_sensors(&sensor);
+    int res = config_sensors(&sensor);
 
     setup_matrix();
 
     led.fx = 15.0;
-    led.fy = 7.0;
+    led.fy = 4.0;
 
     while(1) {
         get_sensor_data(&sensor, &x, &y, &z);
