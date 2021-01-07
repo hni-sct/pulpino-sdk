@@ -2,7 +2,8 @@ ZERORISCY=1
 MICRORISCY=0
 RISCY_FPU=0
 
-PROGRAM=gpio
+#PROGRAM=helloworld
+PROGRAM=led-bmi160-demo
 
 
 JTAG_BRIDGE=$(PREFIX)/bin/jtag_bridge
@@ -65,13 +66,14 @@ software-env:
 	cd $(BUILD_DIR)/sw/ && \
 		PREFIX=$(PREFIX)/bin/ $(ROOT)/sw/cmake_configure.zeroriscy.gcc.sh
 
-software:
+software: software-env
 	cd $(BUILD_DIR)/sw && make $(PROGRAM).elf
 
 GDB_UPLOAD_ARGS ?= --batch
 
 GDB_UPLOAD_CMDS += -ex "target remote localhost:1234"
 GDB_UPLOAD_CMDS += -ex "load"
+GDB_UPLOAD_CMDS += -ex "detach"
 GDB_UPLOAD_CMDS += -ex "quit"
 
 upload:
