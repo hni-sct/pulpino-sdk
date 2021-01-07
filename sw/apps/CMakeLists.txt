@@ -194,6 +194,7 @@ endmacro()
 
 add_subdirectory(helloworld)
 add_subdirectory(gpio)
+add_subdirectory(led-bmi160-demo)
 
 add_subdirectory(bench)
 
