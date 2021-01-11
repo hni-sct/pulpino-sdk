@@ -19,7 +19,6 @@ PREFIX=$(ROOT)/prefix/
 tools: submodules tool-folders gdb gnu-toolchain jtag_bridge software-env
 
 submodules:
-	git config submodule."gdb".update none
 	git submodule update --init
 	cd riscv-gnu-toolchain && \
 		git config submodule."qemu".update none && \
@@ -77,5 +76,5 @@ GDB_UPLOAD_CMDS += -ex "detach"
 GDB_UPLOAD_CMDS += -ex "quit"
 
 upload:
-	$(JTAG_BRIDGE) & \
+	$(JTAG_BRIDGE) 1>/dev/null & \
 	$(RISCV_GDB) $(PROGRAM_DIR)/$(PROGRAM).elf $(GDB_UPLOAD_ARGS) $(GDB_UPLOAD_CMDS)
