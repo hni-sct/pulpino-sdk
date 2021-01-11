@@ -5,10 +5,10 @@
 #include "gpio_spi.h"
 #include "led-matrix.h"
 
-#define BMI_CS 0
 #define BMI_SCK 13
 #define BMI_MISO 12
 #define BMI_MOSI 11
+#define BMI_CS 10
 
 void delay_ms(uint32_t period)
 {
