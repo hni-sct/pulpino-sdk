@@ -63,6 +63,8 @@ static unsigned remu10(unsigned n) {
 int putchar(int s)
 {
   uart_sendchar(s);
+  if ((char)s == '\n')
+    uart_sendchar((int)'\r');
   return s;
 }
 
