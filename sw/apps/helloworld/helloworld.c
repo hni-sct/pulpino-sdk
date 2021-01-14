@@ -10,11 +10,9 @@
 
 
 #include <stdio.h>
-#include "uart.h"
 
 int main()
 {
-  uart_set_cfg(1, 27);
   while (1) {
     printf("Hello World!!!!!\n");
   }

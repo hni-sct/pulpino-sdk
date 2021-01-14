@@ -77,7 +77,8 @@ zero_loop_end:
 
 main_entry:
   addi   x10, x0, 0
-  addi   x11, x0, 0x1
+  addi   x11, x0, 0x1b # for 115200 baud
+  #addi   x11, x0, 0x1
   jal  uart_set_cfg;
 
   /* jump to main program entry point (argc = argv = 0) */
