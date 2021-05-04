@@ -123,6 +123,8 @@ int main()
     led.fx = 15.0;
     led.fy = 4.0;
 
+    printf("Reset Demo\n");
+
     while(1) {
         get_sensor_data(&sensor, &x, &y, &z);
         led.delta_x = smooth_data(x);
