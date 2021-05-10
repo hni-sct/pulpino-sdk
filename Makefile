@@ -2,6 +2,7 @@ ZERORISCY=1
 MICRORISCY=0
 RISCY_FPU=0
 
+USE_LLVM=0
 #PROGRAM=helloworld
 PROGRAM=led-bmi160-demo
 
@@ -16,14 +17,30 @@ BUILD_DIR=$(ROOT)/build/
 PREFIX=$(ROOT)/prefix/
 
 .PHONY: tools tool-folders gdb gnu-toolchain jtag_bridge submodules
-tools: submodules tool-folders gdb gnu-toolchain jtag_bridge software-env
+
+ifeq ($(USE_LLVM), 1)
+tools: submodules tool-folders gdb gnu-toolchain llvm-toolchain jtag_bridge software-env
 
 submodules:
+	git config submodule."riscv-llvm".update none  && \
 	git submodule update --init
 	cd riscv-gnu-toolchain && \
 		git config submodule."qemu".update none && \
 		git config submodule."riscv-gdb".update none  && \
 		git submodule update --init
+
+else 
+tools: submodules tool-folders gdb gnu-toolchain jtag_bridge software-env
+
+submodules:
+	git config submodule."riscv-llvm".update none  && \
+	git submodule update --init
+	cd riscv-gnu-toolchain && \
+		git config submodule."qemu".update none && \
+		git config submodule."riscv-gdb".update none  && \
+		git submodule update --init
+endif
+
 
 tools-clean:
 	rm -rf $(BUILD_DIR)
@@ -34,13 +51,27 @@ tool-folders:
 	mkdir -p $(PREFIX)
 
 gnu-toolchain:
-	mkdir -p $(BUILD_DIR)
-	cd $(BUILD_DIR) && $(ROOT)/riscv-gnu-toolchain/configure \
+	mkdir -p $(BUILD_DIR)/gnu-toolchain
+	cd $(BUILD_DIR)/gnu-toolchain && $(ROOT)/riscv-gnu-toolchain/configure \
 		--prefix=$(PREFIX) \
 		--disable-gdb \
 		--with-arch=rv32g \
 		--with-abi=ilp32 \
-		&& make -j16
+		&& make -j`nproc`
+
+llvm-toolchain:
+	mkdir -p $(BUILD_DIR)/llvm/
+	ln -s $(ROOT)/riscv-llvm/clang $(ROOT)/riscv-llvm/llvm/tools || true
+	cd $(BUILD_DIR)/llvm && \
+		cmake -DCMAKE_BUILD_TYPE="Release" \
+			  -DBUILD_SHARED_LIBS=True -DLLVM_USE_SPLIT_DWARF=True \
+			  -DCMAKE_INSTALL_PREFIX="$(PREFIX)" \
+			  -DLLVM_OPTIMIZED_TABLEGEN=True -DLLVM_BUILD_TESTS=False \
+			  -DDEFAULT_SYSROOT="$(PREFIX)/riscv64-unknown-elf" \
+			  -DLLVM_DEFAULT_TARGET_TRIPLE="riscv64-unknown-elf" \
+			  -DLLVM_TARGETS_TO_BUILD="RISCV" \
+			  $(ROOT)/riscv-llvm/llvm/ 
+	cd $(BUILD_DIR)/llvm/ && make -j`nproc` install
 
 gdb:
 	# gdb
