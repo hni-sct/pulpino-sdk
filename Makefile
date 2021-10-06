@@ -3,12 +3,13 @@ MICRORISCY=0
 RISCY_FPU=0
 
 USE_LLVM=0
-#PROGRAM=helloworld
 PROGRAM=led-bmi160-demo
 
 
 JTAG_BRIDGE=$(PREFIX)/bin/jtag_bridge
 RISCV_GDB=$(PREFIX)/bin/riscv64-unknown-elf-gdb
+RISCV_OBJCOPY=$(PREFIX)/bin/riscv32-unknown-elf-objcopy
+S19_PARSE=$(ROOT)/sw/utils/s19_parse.py
 
 PROGRAM_DIR=$(ROOT)/build/sw/apps/$(PROGRAM)
 
@@ -16,7 +17,7 @@ ROOT=$(shell pwd)
 BUILD_DIR=$(ROOT)/build/
 PREFIX=$(ROOT)/prefix/
 
-.PHONY: tools tool-folders gdb gnu-toolchain jtag_bridge submodules
+.PHONY: tools tool-folders gdb gnu-toolchain jtag_bridge submodules software clean
 
 ifeq ($(USE_LLVM), 1)
 tools: submodules tool-folders gdb gnu-toolchain llvm-toolchain jtag_bridge software-env
@@ -96,8 +97,19 @@ software-env:
 	cd $(BUILD_DIR)/sw/ && \
 		PREFIX=$(PREFIX)/bin/ $(ROOT)/sw/cmake_configure.zeroriscy.gcc.sh
 
-software: software-env
+software: software-env $(BUILD_DIR)/sw/apps/$(PROGRAM)/$(PROGRAM).hex
+
+$(BUILD_DIR)/sw/apps/$(PROGRAM)/$(PROGRAM).elf:
 	cd $(BUILD_DIR)/sw && make $(PROGRAM).elf
+
+$(BUILD_DIR)/sw/apps/$(PROGRAM)/$(PROGRAM).s19: $(BUILD_DIR)/sw/apps/$(PROGRAM)/$(PROGRAM).elf
+	@echo OBJCOPY $(PROGRAM).s19
+	@$(RISCV_OBJCOPY) --srec-forceS3 --srec-len 4 --output-target=srec $< $@
+
+$(BUILD_DIR)/sw/apps/$(PROGRAM)/$(PROGRAM).hex: $(BUILD_DIR)/sw/apps/$(PROGRAM)/$(PROGRAM).s19
+	@echo S19_TO_HEX $(PROGRAM).hex
+	$(S19_PARSE) $< > $@
+
 
 GDB_UPLOAD_ARGS ?= --batch
 
@@ -109,3 +121,6 @@ GDB_UPLOAD_CMDS += -ex "quit"
 upload:
 	$(JTAG_BRIDGE) 1>/dev/null & \
 	$(RISCV_GDB) $(PROGRAM_DIR)/$(PROGRAM).elf $(GDB_UPLOAD_ARGS) $(GDB_UPLOAD_CMDS)
+
+clean:
+	cd $(BUILD_DIR)/sw && make clean
