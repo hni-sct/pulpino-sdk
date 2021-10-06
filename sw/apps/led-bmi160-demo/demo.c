@@ -106,7 +106,6 @@ int main()
 {
     int16_t x, y, z;
     struct bmi160_dev sensor;
-    LEDCoordinates led;
 
     spi_begin(BMI_SCK, BMI_MISO, BMI_MOSI, BMI_CS, 10000);
 
@@ -120,23 +119,68 @@ int main()
 
     setup_matrix();
 
+    LEDCoordinates led = {0};
     led.fx = 15.0;
     led.fy = 4.0;
+    LEDCoordinates led0_dup = led;
 
     printf("Reset Demo\n");
 
     while(1) {
-        get_sensor_data(&sensor, &x, &y, &z);
-        led.delta_x = smooth_data(x);
-        led.delta_y = smooth_data(y);
+            get_sensor_data(&sensor, &x, &y, &z);
+    led.delta_x = smooth_data(x);
+    led.delta_y = smooth_data(y);
 
-
-        if (led.delta_x > 0.03 || led.delta_x < -0.03) {
-            move_by_x(&led);
-        }
-        if (led.delta_y > 0.03 || led.delta_y < -0.03) {
-            move_by_y(&led);
-        }
-        render(&led);
+    if (led.delta_x > 0.03 || led.delta_x < -0.03)
+    {
+      move_by_x(&led);
     }
+    if (led.delta_y > 0.03 || led.delta_y < -0.03)
+    {
+      move_by_y(&led);
+    }
+
+    /*
+     * materialized block 'VBI_main_0_1_dup' of type 'main_0'
+     */
+
+    led0_dup.delta_x = smooth_data(x);
+    led0_dup.delta_y = smooth_data(y);
+
+    if (led0_dup.delta_x > 0.03 || led0_dup.delta_x < -0.03)
+    {
+      move_by_x(&led0_dup);
+    }
+    if (led0_dup.delta_y > 0.03 || led0_dup.delta_y < -0.03)
+    {
+      move_by_y(&led0_dup);
+    }
+
+    /*
+     * materialized block 'VBI_main_0_1_comparator' of type 'ComparatorType_VBI_main_0_1'
+     */
+
+    float fxdelta = (led.fx - led0_dup.fx) * (led.fx - led0_dup.fx);
+    float fydelta = (led.fy - led0_dup.fy) * (led.fy - led0_dup.fy);
+
+    static int8_t cnt = 0;
+    if (cnt == 10)
+    {
+      if (fxdelta > .5 || fydelta > .5)
+      {
+        /*
+         * error reporting
+         */
+
+        printf("Error detected\n");
+        //GPIO_REG(GPIO_INPUT_EN)    &= ~((0x1<< RED_LED_OFFSET) | (0x1<< GREEN_LED_OFFSET) | (0x1 << BLUE_LED_OFFSET)) ;
+        //GPIO_REG(GPIO_OUTPUT_EN)   |=  ((0x1<< RED_LED_OFFSET)| (0x1<< GREEN_LED_OFFSET) | (0x1 << BLUE_LED_OFFSET)) ;
+        //GPIO_REG(GPIO_OUTPUT_VAL)  =   (0x1 << BLUE_LED_OFFSET) ;
+
+      }
+     } else {
+      cnt++;
+    }
+    render(&led);
+  }
 }
