@@ -1,6 +1,7 @@
 # OldWyk
-
-# Wiring
+:warning: **Before connecting the Hifive1 make sure that the `IOREF` jumper on it is set to
+3.3V**
+## Wiring
 5 wires of the OldWyk SPI interface have to be connected to the Hifive1: GND, SCLK, MISO,
 MOSI, and CS. The picture below shows where these wires have to be connected to
 the Hifive1. The pinout of the SPI slave of the OldWyk PCB can be found on the
@@ -9,7 +10,7 @@ backside of the PCB.
 <img src="https://raw.githubusercontent.com/hni-sct/pulpino-sdk/master/doc/wiring.svg">
 </p>
 
-# Testing if OldWyk is alive
+## Testing if OldWyk is alive
 Connect to the micropython shell on the HiFive 1:
 ```
 $ screen /dev/ttyUSB1 115200
@@ -26,7 +27,7 @@ Now import pyb and create a PULPINO object:
 >>> pulpino = pyb.PULPINO()
 ```
 
-## SPI Slave test
+### SPI Slave test
 To check if it is working, reset pulpino:
 ```
 >>> pulpino.reset()
@@ -37,7 +38,7 @@ will see:
 Error can't write reg1 of SPI-Slave>>>
 ```
 
-## LED Blink test
+### LED Blink test
 One LED is connected to GPIO 10. To make it blink we first set the GPIO to
 output (0 means input, 1 means output):
 ```
@@ -48,6 +49,25 @@ Now we can turn on the LED:
 >>> pulpino.gpio_set(10, 1)
 ```
 You should now see LED `D2` turn on.
+
+## Raw SPI bus access
+To write raw SPI messages, we first need to create a SPI object
+```
+>>> spi = pyb.SPI(7, 2000000, 0, 0)
+```
+The parameters of the function are `pyb.SPI(CS_PIN, MAX_SCK_FREQ, CPOL, CPHA)`.
+Now we can use `spi.write_mem(ADDR, VALUE)` and `value = spi.read_mem(ADDR)` to
+read and write anything to the bus.
+
+For example to toggle the LED as done above:
+```
+>>> spi = pyb.SPI(7, 2000000, 0, 0)
+>>> spi.write_mem(0x1A101000, (1 << 10))
+>>> spi.write_mem(0x1A101008, (1 << 10))
+>>> spi.write_mem(0x1A101008, 0)
+```
+The memory addresses for the GPIOs can be found in the pulpino
+[datasheet](https://pulp-platform.org/docs/pulpino_datasheet.pdf)
 
 # Building toolchain
 ## Prerequisites
