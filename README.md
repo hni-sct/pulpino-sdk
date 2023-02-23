@@ -1,6 +1,10 @@
 # OldWyk
 :warning: **Before connecting the Hifive1 make sure that the `IOREF` jumper on it is set to
 3.3V**
+<p align="center">
+<img src="https://raw.githubusercontent.com/hni-sct/pulpino-sdk/master/doc/ioref.svg">
+</p>
+
 ## Wiring
 5 wires of the OldWyk SPI interface have to be connected to the Hifive1: GND, SCLK, MISO,
 MOSI, and CS. The picture below shows where these wires have to be connected to
