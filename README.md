@@ -1,3 +1,54 @@
+# OldWyk
+
+# Wiring
+5 wires of the OldWyk SPI interface have to be connected to the Hifive1: GND, SCLK, MISO,
+MOSI, and CS. The picture below shows where these wires have to be connected to
+the Hifive1. The pinout of the SPI slave of the OldWyk PCB can be found on the
+backside of the PCB.
+<p align="center">
+<img src="https://raw.githubusercontent.com/hni-sct/pulpino-sdk/master/doc/wiring.svg">
+</p>
+
+# Testing if OldWyk is alive
+Connect to the micropython shell on the HiFive 1:
+```
+$ screen /dev/ttyUSB1 115200
+```
+
+If you hit ENTER you should see a python shell:
+```
+>>>
+```
+
+Now import pyb and create a PULPINO object:
+```
+>>> import pyb
+>>> pulpino = pyb.PULPINO()
+```
+
+## SPI Slave test
+To check if it is working, reset pulpino:
+```
+>>> pulpino.reset()
+```
+This will test if the SPI slave of OldWyk is working. If something is wrong you
+will see:
+```
+Error can't write reg1 of SPI-Slave>>>
+```
+
+## LED Blink test
+One LED is connected to GPIO 10. To make it blink we first set the GPIO to
+output (0 means input, 1 means output):
+```
+>>> pulpino.gpio_dir(10, 1)
+```
+Now we can turn on the LED:
+```
+>>> pulpino.gpio_set(10, 1)
+```
+You should now see LED `D2` turn on.
+
 # Building toolchain
 ## Prerequisites
 
