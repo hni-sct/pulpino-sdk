@@ -15,6 +15,12 @@ backside of the PCB.
 </p>
 
 ## Testing if OldWyk is alive
+
+Check
+[oldwyk-micropython-shell](https://github.com/hni-sct/oldwyk-micropython-shell)
+to find the repository containing the micropython firmware, that runs on the
+HiFive1 if you need to build it yourself.
+
 Connect to the micropython shell on the HiFive 1:
 ```
 $ screen /dev/ttyUSB1 115200
